@@ -17,8 +17,11 @@ def mta_data_clean(data_path, file_list) :
 
     """
 
+
     # For each file in the list
-    for dat_file in file_list :
+    for i in range(len(file_list)) :
+
+        dat_file = file_list[i]
 
         # check that the file exists
         if(not path.exists(data_path + dat_file)) :
@@ -77,21 +80,38 @@ def mta_data_clean(data_path, file_list) :
         new_turn_dat['deltaEntry'] = delta_entry
         new_turn_dat['deltaExit'] = delta_exit
 
-        try :
-            full_df
-        except NameError:
+        if i == 0 :
             full_df = new_turn_dat
         else :
-            full_df.merge(new_turn_dat, how='outer', on='station')
+            full_df = pd.concat([full_df, new_turn_dat], axis=0, ignore_index = True)
     # end of for loop
 
     return full_df
 
 def mta_data_pickle_dump(data, pickle_file) :
-    with open(pickle_file, 'wb') as to_write:
-        pickle.dump(data, to_write)
+    '''
+    mta_data_pickle_dump:
+        data - data object to write to the pickle
+        pickle_file - name of file to write to
+    '''
+
+    try :
+        with open(pickle_file, 'wb') as to_write:
+            pickle.dump(data, to_write)
+    except OSError:
+        print('Can\'t open ', pickle_file)
 
 def mta_data_pickle_read(pickle_file) :
-    with open(pickle_file, 'rb') as read_file:
-        data = pickle.load(read_file)
+    '''
+    mta_data_pickle_read:
+        pickle_file - name of file with pickling data to read
+    '''
+
+    try :
+        with open(pickle_file, 'rb') as read_file:
+            data = pickle.load(read_file)
+    except OSError:
+        print('Can\'t open ', pickle_file)
+        data = None
+
     return data
